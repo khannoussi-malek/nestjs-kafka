@@ -11,8 +11,8 @@ This is a basic prototype demonstrating NestJS integration with Apache Kafka usi
 
 1. **Clone the Repository:**
 
-   ```bash
-git clone [https://github.com/khannoussi-malek/nestjs-kafka.git](https://github.com/khannoussi-malek/nestjs-kafka.git)
+```bash
+git clone https://github.com/khannoussi-malek/nestjs-kafka.git
 ```
 
 ### Install Dependencies
