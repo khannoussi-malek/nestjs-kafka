@@ -1,0 +1,75 @@
+version: '3.7'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    restart: always
+    healthcheck:
+      interval: 2s
+      retries: 5
+      start_period: 1s
+      test: |
+        touch /tmp/healthcheck.txt &&
+        mkdir /tmp/healthcheck &&
+        mv /tmp/healthcheck.txt /tmp/healthcheck &&
+        cd /tmp/healthcheck &&
+        echo "hello my docker container is working fine" >> healthcheck.txt &&
+        cat healthcheck.txt &&
+        rm healthcheck.txt &&
+        cd .. &&
+        rmdir /tmp/healthcheck
+        cls
+      timeout: 30s
+    environment:
+      - ZOOKEEPER_SERVER_ID=1
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIMES=2000
+      - ZOOKEEPER_SYNC_LIMIT=2
+    ports:
+      - '2181:2181'
+    volumes:
+      - zk-data:/var/lib/zookeeper/data
+    networks:
+      - restapi_network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    healthcheck:
+      interval: 2s
+      retries: 5
+      start_period: 1s
+      test: |
+        touch /tmp/healthcheck.txt &&
+        mkdir /tmp/healthcheck &&
+        mv /tmp/healthcheck.txt /tmp/healthcheck &&
+        cd /tmp/healthcheck &&
+        echo "hello my docker container is working fine" >> healthcheck.txt &&
+        cat healthcheck.txt &&
+        rm healthcheck.txt &&
+        cd .. &&
+        rmdir /tmp/healthcheck
+        cls
+      timeout: 30s
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=LISTENER_DOCKER_INTERNAL://kafka:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=LISTENER_DOCKER_INTERNAL
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    ports:
+      - '9092:9092'
+    volumes:
+      - kf-data:/var/lib/kafka/data
+    networks:
+      - restapi_network
+    depends_on:
+      - zookeeper
+
+volumes:
+  zk-data:
+  kf-data:
+
+networks:
+  restapi_network:
